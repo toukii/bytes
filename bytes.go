@@ -105,3 +105,74 @@ func (p *Writer) Reset() {
 
 // ---------------------------------------------------
 
+type Buffer struct {
+	b []byte
+}
+
+func NewBuffer() *Buffer {
+	return new(Buffer)
+}
+
+func (p *Buffer) ReadAt(buf []byte, off int64) (n int, err error) {
+	ioff := int(off)
+	if len(p.b) <= ioff {
+		return 0, io.EOF
+	}
+	n = copy(buf, p.b[ioff:])
+	if n != len(buf) {
+		err = io.EOF
+	}
+	return
+}
+
+func (p *Buffer) WriteAt(buf []byte, off int64) (n int, err error) {
+	ioff := int(off)
+	iend := ioff + len(buf)
+	if len(p.b) < iend {
+		if len(p.b) == ioff {
+			p.b = append(p.b, buf...)
+			return len(buf), nil
+		}
+		zero := make([]byte, iend - len(p.b))
+		p.b = append(p.b, zero...)
+	}
+	copy(p.b[ioff:], buf)
+	return len(buf), nil
+}
+
+func (p *Buffer) WriteStringAt(buf string, off int64) (n int, err error) {
+	ioff := int(off)
+	iend := ioff + len(buf)
+	if len(p.b) < iend {
+		if len(p.b) == ioff {
+			p.b = append(p.b, buf...)
+			return len(buf), nil
+		}
+		zero := make([]byte, iend - len(p.b))
+		p.b = append(p.b, zero...)
+	}
+	copy(p.b[ioff:], buf)
+	return len(buf), nil
+}
+
+func (p *Buffer) Truncate(fsize int64) (err error) {
+	size := int(fsize)
+	if len(p.b) < size {
+		zero := make([]byte, size - len(p.b))
+		p.b = append(p.b, zero...)
+	} else {
+		p.b = p.b[:size]
+	}
+	return nil
+}
+
+func (p *Buffer) Buffer() []byte {
+	return p.b
+}
+
+func (p *Buffer) Len() int {
+	return len(p.b)
+}
+
+// ---------------------------------------------------
+
