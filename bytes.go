@@ -133,7 +133,7 @@ func (p *Buffer) WriteAt(buf []byte, off int64) (n int, err error) {
 			p.b = append(p.b, buf...)
 			return len(buf), nil
 		}
-		zero := make([]byte, iend - len(p.b))
+		zero := make([]byte, iend-len(p.b))
 		p.b = append(p.b, zero...)
 	}
 	copy(p.b[ioff:], buf)
@@ -148,7 +148,7 @@ func (p *Buffer) WriteStringAt(buf string, off int64) (n int, err error) {
 			p.b = append(p.b, buf...)
 			return len(buf), nil
 		}
-		zero := make([]byte, iend - len(p.b))
+		zero := make([]byte, iend-len(p.b))
 		p.b = append(p.b, zero...)
 	}
 	copy(p.b[ioff:], buf)
@@ -158,7 +158,7 @@ func (p *Buffer) WriteStringAt(buf string, off int64) (n int, err error) {
 func (p *Buffer) Truncate(fsize int64) (err error) {
 	size := int(fsize)
 	if len(p.b) < size {
-		zero := make([]byte, size - len(p.b))
+		zero := make([]byte, size-len(p.b))
 		p.b = append(p.b, zero...)
 	} else {
 		p.b = p.b[:size]
@@ -175,4 +175,3 @@ func (p *Buffer) Len() int {
 }
 
 // ---------------------------------------------------
-
