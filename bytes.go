@@ -3,6 +3,7 @@ package bytes
 import (
 	"io"
 	"syscall"
+	// "fmt"
 )
 
 // ---------------------------------------------------
@@ -82,12 +83,26 @@ func NewWriter(buff []byte) *Writer {
 }
 
 func (p *Writer) Write(val []byte) (n int, err error) {
-	n = copy(p.b[p.n:], val)
+	n = len(val)
+	if p.Cur()-p.Len() > n {
+		n = copy(p.b[p.n:], val)
+	} else {
+		if p.Cur() != p.Len() {
+			// fmt.Println("cur-len:", p.b[p.Len():p.Cur()])
+			for i := p.Len(); i < p.Cur(); i++ {
+				// fmt.Printf("set:%d, 8\n", i)
+				p.b[i] = byte(8)
+			}
+			p.n += p.Cur() - p.Len()
+		}
+		p.b = append(p.b, val...)
+	}
+	p.n += n
+	// fmt.Printf("write:|%+v|%s|len:%d,Len:%d\n", val, val, n, p.n)
 	if n == 0 && len(val) > 0 {
 		err = io.EOF
 		return
 	}
-	p.n += n
 	return
 }
 
@@ -95,7 +110,21 @@ func (p *Writer) Len() int {
 	return p.n
 }
 
+func (p *Writer) Cap() int {
+	cp := cap(p.b)
+	// fmt.Println("cap:", cp)
+	return cp
+}
+
+func (p *Writer) Cur() int {
+	cur := len(p.b)
+	// fmt.Println("cur:", cur)
+	return cur
+}
+
 func (p *Writer) Bytes() []byte {
+	// fmt.Println("Len", p.n)
+	// fmt.Println(p.b[:p.n])
 	return p.b[:p.n]
 }
 
