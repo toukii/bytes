@@ -3,7 +3,6 @@ package bytes
 import (
 	"io"
 	"syscall"
-	// "fmt"
 )
 
 // ---------------------------------------------------
@@ -90,12 +89,10 @@ func (p *Writer) Write(val []byte) (n int, err error) {
 	} else {
 		if cur != length { // buff已经不够copy,多出来的buff[length:cur]要截掉
 			p.b = p.b[:p.n]
-			// fmt.Println("cur-len:", p.b[length:cur])
 		}
 		p.b = append(p.b, val...)
 	}
 	p.n += n
-	// fmt.Printf("write:|%+v|%s|len:%d,Len:%d\n", val, val, n, p.n)
 	if n == 0 && len(val) > 0 {
 		err = io.EOF
 		return
@@ -108,14 +105,10 @@ func (p *Writer) Len() int {
 }
 
 func (p *Writer) Cur() int {
-	cur := len(p.b)
-	// fmt.Println("cur:", cur)
-	return cur
+	return len(p.b)
 }
 
 func (p *Writer) Bytes() []byte {
-	// fmt.Println("Len", p.n)
-	// fmt.Println(p.b[:p.n])
 	return p.b[:p.n]
 }
 
