@@ -84,16 +84,13 @@ func NewWriter(buff []byte) *Writer {
 
 func (p *Writer) Write(val []byte) (n int, err error) {
 	n = len(val)
-	if p.Cur()-p.Len() > n {
+	cur, length := p.Cur(), p.Len()
+	if cur-length > n {
 		n = copy(p.b[p.n:], val)
 	} else {
-		if p.Cur() != p.Len() {
-			// fmt.Println("cur-len:", p.b[p.Len():p.Cur()])
-			for i := p.Len(); i < p.Cur(); i++ {
-				// fmt.Printf("set:%d, 8\n", i)
-				p.b[i] = byte(8)
-			}
-			p.n += p.Cur() - p.Len()
+		if cur != length { // buff已经不够copy,多出来的buff[length:cur]要截掉
+			p.b = p.b[:p.n]
+			// fmt.Println("cur-len:", p.b[length:cur])
 		}
 		p.b = append(p.b, val...)
 	}
@@ -108,12 +105,6 @@ func (p *Writer) Write(val []byte) (n int, err error) {
 
 func (p *Writer) Len() int {
 	return p.n
-}
-
-func (p *Writer) Cap() int {
-	cp := cap(p.b)
-	// fmt.Println("cap:", cp)
-	return cp
 }
 
 func (p *Writer) Cur() int {
